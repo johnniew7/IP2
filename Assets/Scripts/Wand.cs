@@ -10,6 +10,7 @@ public class Wand : MonoBehaviour
 
     public Transform SpellPathPrefab;
     public Transform SpellFlashPrefab;
+    public Transform SpellHitPrefab;
     float spawnEffectTime = 0;
     public float spawnEffectRate = 10;
 
@@ -51,23 +52,55 @@ public class Wand : MonoBehaviour
         Vector2 mousePosition = new Vector2 (Camera.main.ScreenToWorldPoint (Input.mousePosition).x, Camera.main.ScreenToWorldPoint (Input.mousePosition).y);
         Vector2 spellLPPosition = new Vector2 (spellLP.position.x, spellLP.position.y);
         RaycastHit2D hit = Physics2D.Raycast (spellLPPosition, mousePosition-spellLPPosition, 100, notHit);
-        if (Time.time >= spawnEffectTime)
-        {
-            Effect();
-            spawnEffectTime = Time.time + 1/spawnEffectRate;
-        }
-        Debug.DrawLine(spellLPPosition, (mousePosition-spellLPPosition)*100, Color.black);
+        Debug.DrawLine(spellLPPosition, (mousePosition - spellLPPosition) * 100, Color.black);
+
         if (hit.collider != null)
         {
             Debug.DrawLine(spellLPPosition, hit.point, Color.red);
-            Debug.Log("We hit " + hit.collider.name + " and did " + spellDamage + " damage.");
+            if (hit.collider != null)
+            {
+                Debug.Log ("We hit " + hit.collider.name + " and did " + spellDamage + " damage.");
+            }
+        }
+
+        if (Time.time >= spawnEffectTime)
+        {
+            Vector3 posHit;
+            Vector3 normalHit;
+
+            if (hit.collider == null)
+            {
+                posHit = (mousePosition - spellLPPosition) * 30;
+                normalHit = new Vector3(9999, 9999, 9999);
+            }
+            else
+            {
+                posHit = hit.point;
+                normalHit = hit.normal;
+            }
+
+            Effect(posHit, normalHit);
+            spawnEffectTime = Time.time + 1 / spawnEffectRate;
         }
     }
 
-    void Effect()
+    void Effect(Vector3 posHit, Vector3 normalHit)
     {
-        Instantiate(SpellPathPrefab, spellLP.position, spellLP.rotation);
-        Transform clone = Instantiate(SpellFlashPrefab, spellLP.position, spellLP.rotation) as Transform;
+        Transform path = Instantiate (SpellPathPrefab, spellLP.position, spellLP.rotation);
+        LineRenderer lr = path.GetComponent<LineRenderer>();
+
+        if (lr != null)
+        {
+            lr.SetPosition(0, spellLP.position);
+            lr.SetPosition(1, posHit);
+        }
+
+        if (normalHit == new Vector3(9999, 9999, 9999))
+        {
+            Instantiate(SpellHitPrefab, posHit, Quaternion.FromToRotation (Vector3.up, normalHit));
+        }
+
+        Transform clone = Instantiate (SpellFlashPrefab, spellLP.position, spellLP.rotation) as Transform;
         clone.parent = spellLP;
         float size = Random.Range(0.6f, 0.9f);
         clone.localScale = new Vector3(size, size, size);

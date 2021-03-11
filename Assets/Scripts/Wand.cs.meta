@@ -3,7 +3,9 @@ guid: 3ab28f429b4be3647ab072ac3e2c045f
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - SpellPathPrefab: {fileID: 5137275033095244184, guid: 361b34784963bc54291526a147178eee, type: 3}
+  - SpellFlashPrefab: {fileID: 3898676105516544309, guid: 9e0ef9cf1eec9cf41ab97d7369425340, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
